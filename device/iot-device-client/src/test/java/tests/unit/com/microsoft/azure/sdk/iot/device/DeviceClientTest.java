@@ -1306,7 +1306,7 @@ public class DeviceClientTest
 
         DeviceClient client = new DeviceClient(connString, mockTransportClient);
 //        Deencapsulation.setField(client, "config", mockConfig);
-//        Deencapsulation.setField(client, "deviceIO", mockDeviceIO);
+        Deencapsulation.setField(client, "deviceIO", mockDeviceIO);
         final String value = "certificatePath";
 
         // act
@@ -1528,6 +1528,7 @@ public class DeviceClientTest
         final String connString = "HostName=iothub.device.com;CredentialType=SharedAccessKey;deviceId=testdevice;"
                 + "SharedAccessKey=adjkl234j52=";
         DeviceClient client = new DeviceClient(connString, mockTransportClient);
+        Deencapsulation.setField(client, "deviceIO", mockDeviceIO);
 
         // act
         client.setOption("SetSendInterval", "thisIsNotALong");
@@ -1972,6 +1973,7 @@ public class DeviceClientTest
         DeviceClient client = Deencapsulation.newInstance(DeviceClient.class);
         Deencapsulation.setField(client, "transportClient", mockTransportClient);
         Deencapsulation.setField(client, "ioTHubConnectionType", USE_TRANSPORTCLIENT);
+        Deencapsulation.setField(client, "deviceIO", mockDeviceIO);
 
         new NonStrictExpectations()
         {
