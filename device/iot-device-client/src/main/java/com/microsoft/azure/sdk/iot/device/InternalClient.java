@@ -394,7 +394,10 @@ public class InternalClient
         this.connectionStatusChangeCallback = callback;
         this.connectionStatusChangeCallbackContext = callbackContext;
 
-        this.deviceIO.registerConnectionStatusChangeCallback(callback, callbackContext, this.getConfig().getDeviceId());
+        if (this.deviceIO != null)
+        {
+            this.deviceIO.registerConnectionStatusChangeCallback(callback, callbackContext, this.getConfig().getDeviceId());
+        }
     }
 
     /**
@@ -954,6 +957,12 @@ public class InternalClient
      */
     public void setProxySettings(ProxySettings proxySettings)
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before using it");
+        }
+
         if (this.deviceIO.isOpen())
         {
             throw new IllegalStateException("Cannot set proxy after connection was already opened");

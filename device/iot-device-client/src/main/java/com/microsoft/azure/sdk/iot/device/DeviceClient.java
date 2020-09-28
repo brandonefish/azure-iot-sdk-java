@@ -749,6 +749,12 @@ public final class DeviceClient extends InternalClient implements Closeable
             throw new IllegalArgumentException("optionName is null");
         }
 
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before using it");
+        }
+
         switch (optionName)
         {
             // Codes_SRS_DEVICECLIENT_02_016: ["SetMinimumPollingInterval" - time in milliseconds between 2 consecutive polls.]
