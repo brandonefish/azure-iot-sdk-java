@@ -40,6 +40,9 @@ public class InternalClient
     DeviceClientConfig config;
     DeviceIO deviceIO;
 
+    private IotHubConnectionStatusChangeCallback connectionStatusChangeCallback;
+    private Object connectionStatusChangeCallbackContext;
+
     private DeviceTwin twin;
     private DeviceMethod method;
 
@@ -178,6 +181,12 @@ public class InternalClient
      */
     public void sendEventAsync(Message message, IotHubEventCallback callback, Object callbackContext)
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before sending telemetry");
+        }
+
         //Codes_SRS_INTERNALCLIENT_34_045: [This function shall set the provided message's connection device id to the config's saved device id.]
         message.setConnectionDeviceId(this.config.getDeviceId());
 
@@ -203,6 +212,12 @@ public class InternalClient
      */
     public void sendEventBatchAsync(List<Message> messages, IotHubEventCallback callback, Object callbackContext)
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before sending telemetry");
+        }
+
         for (Message message: messages)
         {
             message.setConnectionDeviceId(this.config.getDeviceId());
@@ -234,6 +249,12 @@ public class InternalClient
      */
     public void subscribeToDesiredProperties(Map<Property, Pair<PropertyCallBack<String, Object>, Object>> onDesiredPropertyChange) throws IOException
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before subscribing to desired properties");
+        }
+
         if (this.twin == null)
         {
             //Codes_SRS_INTERNALCLIENT_25_029: [If the client has not started twin before calling this method, the function shall throw an IOException.]
@@ -259,6 +280,12 @@ public class InternalClient
      */
     public void subscribeToTwinDesiredProperties(Map<Property, Pair<TwinPropertyCallBack, Object>> onDesiredPropertyChange) throws IOException
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before subscribing to desired properties");
+        }
+
         if (this.twin == null)
         {
             //Codes_SRS_INTERNALCLIENT_34_087: [If the client has not started twin before calling this method, the function shall throw an IOException.]
@@ -285,6 +312,12 @@ public class InternalClient
      */
     public void sendReportedProperties(Set<Property> reportedProperties) throws IOException, IllegalArgumentException
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before sending reported properties");
+        }
+
         if (this.twin == null)
         {
             throw new IOException("Start twin before using it");
@@ -314,6 +347,12 @@ public class InternalClient
      */
     public void sendReportedProperties(Set<Property> reportedProperties, int version) throws IOException, IllegalArgumentException
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before sending reported properties");
+        }
+
         if (this.twin == null)
         {
             throw new IOException("Start twin before using it");
@@ -352,8 +391,10 @@ public class InternalClient
      */
     public void registerConnectionStatusChangeCallback(IotHubConnectionStatusChangeCallback callback, Object callbackContext) throws IllegalArgumentException
     {
-        //Codes_SRS_INTERNALCLIENT_34_069: [This function shall register the provided callback and context with its device IO instance.]
-        this.deviceIO.registerConnectionStatusChangeCallback(callback, callbackContext);
+        this.connectionStatusChangeCallback = callback;
+        this.connectionStatusChangeCallbackContext = callbackContext;
+
+        this.deviceIO.registerConnectionStatusChangeCallback(callback, callbackContext, this.getConfig().getDeviceId());
     }
 
     /**
@@ -556,6 +597,12 @@ public class InternalClient
             throws IOException, IllegalArgumentException, UnsupportedOperationException
 
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before starting twin");
+        }
+
         if (!this.deviceIO.isOpen())
         {
             throw new IOException("Open the client connection before using it.");
@@ -600,6 +647,12 @@ public class InternalClient
                                  TwinPropertyCallBack genericPropertyCallBack, Object genericPropertyCallBackContext)
             throws IOException, IllegalArgumentException, UnsupportedOperationException
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before starting twin");
+        }
+
         if (!this.deviceIO.isOpen())
         {
             //Codes_SRS_INTERNALCLIENT_34_081: [If device io has not been opened yet, this function shall throw an IOException.]
@@ -633,6 +686,12 @@ public class InternalClient
      */
     void getTwinInternal() throws IOException
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before getting twin");
+        }
+
         if (this.twin == null)
         {
             //Codes_SRS_INTERNALCLIENT_21_040: [If the client has not started twin before calling this method, the function shall throw an IOException.]
@@ -688,6 +747,12 @@ public class InternalClient
                                               IotHubEventCallback methodStatusCallback, Object methodStatusCallbackContext)
             throws IOException
     {
+        // deviceIO is only ever null when a client was registered to a multiplexing client, became unregistered, and hasn't be re-registered yet.
+        if (this.deviceIO == null)
+        {
+            throw new UnsupportedOperationException("Must re-register this client to a multiplexing client before subscribing to methods");
+        }
+
         if (!this.deviceIO.isOpen())
         {
             throw new IOException("Open the client connection before using it.");
@@ -723,7 +788,15 @@ public class InternalClient
      */
     void setDeviceIO(DeviceIO deviceIO)
     {
+        // deviceIO may be set to null in the case when a device client was multiplexing and was unregistered
         this.deviceIO = deviceIO;
+
+        // Since connection status callbacks can be registered before associating a device client with a multiplexing client, the callback and its
+        // context also need to be registered when the device IO is set.
+        if (this.deviceIO != null && this.connectionStatusChangeCallback != null)
+        {
+            this.deviceIO.registerConnectionStatusChangeCallback(this.connectionStatusChangeCallback, this.connectionStatusChangeCallbackContext, this.getConfig().getDeviceId());
+        }
     }
 
     void setOption_SetCertificatePath(Object value)
@@ -887,7 +960,7 @@ public class InternalClient
         }
 
         IotHubClientProtocol protocol = this.deviceIO.getProtocol();
-        if (protocol != HTTPS && protocol != AMQPS_WS && protocol != MQTT_WS)
+        if (protocol != HTTPS && protocol != AMQPS_WS && protocol != MQTT_WS && proxySettings != null)
         {
             throw new IllegalArgumentException("Use of proxies is unsupported unless using HTTPS, MQTT_WS or AMQPS_WS");
         }

@@ -7,8 +7,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.azure.sdk.iot.samples.device</groupId>
-    <artifactId>transportclient-sample</artifactId>
-    <name>TransportClient Sample</name>
+    <artifactId>multiplexing-sample</artifactId>
+    <name>Multiplexing Client Sample</name>
     <developers>
         <developer>
             <id>microsoft</id>
